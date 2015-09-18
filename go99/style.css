@@ -1,0 +1,12 @@
+body {
+	font-family: 15px sans-serif;
+}
+
+h1, h2, h3 {
+	text-transform: uppercase;
+}
+
+nav > ol {
+	list-style: none;
+	padding: 0;
+}
