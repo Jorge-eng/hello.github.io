@@ -1,0 +1,30 @@
+body {
+	font-family: 15px sans-serif;
+}
+
+main {
+	margin: 0 auto;
+	width: 900px;
+}
+
+nav#sections ol {
+	list-style: none;
+	padding: 0;
+}
+
+nav#sections li {
+	display: inline-block;
+}
+
+ol.offerings {
+	list-style: none;
+	display: flex;
+	flex-flow: row wrap;
+	align-items: flex-start;
+	justify-content: space-around;
+}
+
+ol.offerings li {
+	background: yellow;
+	width: 300px;
+}
