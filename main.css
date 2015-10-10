@@ -1,5 +1,5 @@
 body {
-	font-family: "Proxima Nova", Helvetica, Sans;;
+	font-family: "Proxima Nova", Helvetica, sans-serif;
 	margin: 0px;
 	padding: 0px;
 	background-color: #F5F5F7;
@@ -36,6 +36,12 @@ h3 {
 	padding-top: 8px;
 }
 
+h4 {
+	font-size: 14px;
+	font-weight: 200;
+	padding-top: 16px;
+}
+
 p {
 	font-size: 14px;
 	line-height: 22px;
@@ -49,7 +55,7 @@ pre {
 	border: 1px solid #E9E9F0;
 	border-radius: 3px;
 	padding: 24px;
-	white-space: normal;
+	white-space: pre-wrap;
 	line-height: 1.4;
 	margin: 16px 0;
 }
@@ -79,6 +85,24 @@ header nav {
 
 header img {
 	padding: 22px 0;
+}
+
+a.button, a.button:visited {
+	display: inline-block;
+	cursor: default;
+	color: white;
+	text-transform: uppercase;
+	font-weight:600;
+	background-color: #009CFF;
+	padding: 13px 20px 12px 20px;
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	border-radius: 5px;
+	box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 2px;
+}
+
+a.button:active {
+	background-color: #007DCD;
+	box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 2px;
 }
 
 
@@ -158,6 +182,13 @@ li {
 	border-bottom: 1px solid #E9E9F0;
 }
 
+.page-title.go99-title {
+	font: italic 600 24px "Avenir Next Condensed", sans-serif;
+}
+.go99-accent {
+	color: #AD2929;
+}
+
 .page-nav a, .page-nav:link a, .page-nav:visited a {
 	display: block;
 	padding: 0 24px 0 24px;
@@ -173,7 +204,7 @@ li {
 }
 
 #in-page {
-    padding-top: 32px;
+  padding-top: 32px;
 	width: 100%;
 	display: inline-block;
 }
