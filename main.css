@@ -87,6 +87,14 @@ header img {
 	padding: 22px 0;
 }
 
+.header-img {
+	height: 180px;
+	width: 150px;
+	float: right;
+	display: inline-block;
+	padding-top: 24px;
+}
+
 a.button, a.button:visited {
 	display: inline-block;
 	cursor: default;
@@ -134,10 +142,6 @@ ol.offerings li {
 nav > ol {
 	list-style: none;
 	padding: 0;
-}
-
-ol.nav-right {
-	float: right;
 }
 
 .github-nav {
@@ -204,8 +208,7 @@ li {
 }
 
 #in-page {
-  padding-top: 32px;
-	width: 100%;
+	padding-top: 72px;
 	display: inline-block;
 }
 
@@ -215,6 +218,7 @@ li {
 
 #project-intro {
 	padding-top: 48px;
+	display: inline-block;
 }
 
 #examples, #download, #license {
