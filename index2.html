@@ -4,6 +4,18 @@
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 		<title>Hello Open Source</title>
 		<link rel="stylesheet" href="main.css" type="text/css" media="screen">
+		<script>
+		var checkScrollBars = function(){
+    		var b = $('body');
+    		var normalw = 0;
+    		var scrollw = 0;
+		    if(b.prop('scrollHeight')>b.height()){
+        		normalw = window.innerWidth;
+        		scrollw = normalw - b.width();
+        		$('#container').css({marginRight:'-'+scrollw+'px'});
+    		}
+		}
+		</script>
 	</head>
 	<body>
 		<header>
@@ -30,7 +42,7 @@
 				<!-- <a name="section-android"><h2>Android</h2></a> -->
 				<ol class="offerings">
 					<li>
-						<img class="preview" src="go99/logo.png" alt="AnimeAndroidGo99">
+						<h2 class="title">Anime Android Go 99</h2>
 						<p class="summary">Tools to make building complex animations on Android more pleasant.</p>
 						<a class="card-icon" href="go99/index.html">
 							<img src="images/website.png" title="Web site">
