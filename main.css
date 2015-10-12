@@ -97,15 +97,19 @@ header img {
 
 a.button, a.button:visited {
 	display: inline-block;
-	cursor: default;
+	cursor: pointer;
 	color: white;
 	text-transform: uppercase;
 	font-weight:600;
 	background-color: #009CFF;
-	padding: 13px 20px 12px 20px;
+	padding: 10px 12px 9px 12px;
 	border: 1px solid rgba(0, 0, 0, 0.05);
-	border-radius: 5px;
+	border-radius: 3px;
 	box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 2px;
+}
+
+a.button:hover {
+	background-color: #008EE6;
 }
 
 a.button:active {
@@ -113,6 +117,15 @@ a.button:active {
 	box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 2px;
 }
 
+a.text-link {
+	color: #009CFF;
+	text-decoration: none;
+}
+
+a.text-link:hover {
+	color: #007DCD;
+	border-bottom: 1px solid #007DCD;
+}
 
 
 /* ------ Main Page ------ */
@@ -221,7 +234,7 @@ li {
 	display: inline-block;
 }
 
-#examples, #download, #license {
+#examples, #download, #contributing, #license {
 	padding-top: 56px;
 }
 
