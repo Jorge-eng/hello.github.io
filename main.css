@@ -65,13 +65,12 @@ main {
 }
 
 footer {
-	height: 100%;
 	border-top-width: 1px;
     border-top-style: solid;
-    border-top-color: rgba(0, 0, 0, 0.1);
-    background: rgb(255, 255, 255);
-	padding: 24px 0;
-	position: fixed;
+    border-top-color: rgba(0, 0, 0, 0.05);
+	padding: 24px 0 40px;
+	display: inline-block;
+	margin-top: 24px;
 	width: 100%;
 }
 
