@@ -65,7 +65,14 @@ main {
 }
 
 footer {
+	height: 100%;
+	border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: rgba(0, 0, 0, 0.1);
+    background: rgb(255, 255, 255);
 	padding: 24px 0;
+	position: fixed;
+	width: 100%;
 }
 
 header {
@@ -77,24 +84,13 @@ header {
     width: 100%;
     display: inline-block;
     height: 72px;
+    z-index: 10000;
 }
 
-header nav {
+header nav, footer nav {
 	width: 960px;
 	margin: 0 auto;
 	padding: 0 24px;
-}
-
-header img {
-	padding: 22px 0;
-}
-
-.header-img {
-	height: 180px;
-	width: 150px;
-	float: right;
-	display: inline-block;
-	padding-top: 24px;
 }
 
 a.button, a.button:visited {
@@ -129,6 +125,24 @@ a.text-link:hover {
 	border-bottom: 1px solid #007DCD;
 }
 
+.footer-nav a, .footer-nav:link a, .footer-nav:visited a {
+	display: block;
+	padding: 8px 24px;
+	color: #888888;
+	font-size: 16px;
+	text-decoration: none;
+}
+
+.footer-nav:hover a, .footer-nav:active a {
+	color: #009CFF;
+}
+
+.footer-hello {
+	float: left;
+	display: inline-block;
+	font-size: 16px;
+	padding-right: 24px;
+}
 
 /* ------ Main Page ------ */
 
@@ -160,6 +174,22 @@ ol.offerings li {
 nav > ol {
 	list-style: none;
 	padding: 0;
+}
+
+header img {
+	padding: 22px 0;
+}
+
+.header-img {
+	height: 180px;
+	width: 150px;
+	float: right;
+	display: inline-block;
+	padding-top: 24px;
+}
+
+.hello-logo:hover {
+	opacity: .7;
 }
 
 .github-nav {
@@ -196,6 +226,10 @@ ol.offerings {
 
 .join-us-links a {
 	padding-right: 24px;
+}
+
+.join-us-links a:hover {
+	border-bottom: none;
 }
 
 
