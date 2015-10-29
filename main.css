@@ -232,6 +232,15 @@ ol.offerings {
 	border-bottom: none;
 }
 
+a.project-title , a.project-title:visited {
+	color: inherit;
+}
+
+a.project-title:hover {
+	color: rgba(0, 0, 0, 0.5);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
 
 /* ------ Article Page ------ */
 
