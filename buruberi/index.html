@@ -1,0 +1,202 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>Burūberī</title>
+		<link rel="stylesheet" href="../main.css" type="text/css" media="screen">
+	</head>
+	<body>
+		<header>
+			<nav>
+				<a class="hello-logo" href="/index.html">
+					<img src="../images/logo-hello-black.svg" alt="Hello">
+				</a>
+			</nav>
+		</header>
+
+		<div id="project-header">
+			<main>
+				<section id="project-intro">
+					<h1 class="page-title">Burūberī</h1>
+					<p class="page-description">Less flaky Bluetooth Low Energy for Android.</p>
+			</section>
+			<nav id="in-page">
+				<ol>
+					<li class="page-nav"><a href="#section-overview">Overview</a></li>
+					<li class="page-nav"><a href="#section-examples">Usage</a></li>
+					<li class="page-nav"><a href="#section-download">Get It</a></li>
+					<li class="page-nav"><a href="#section-license">License</a></li>
+					<li class="page-nav"><a href="javadoc/index.html">Javadoc</a></li>
+					<li class="page-nav"><a href="https://github.com/hello/android-buruberi/tree/master/example">Example App</a></li>
+				</ol>
+			</nav>
+			</main>
+		</div>
+
+		<main>
+			<section id="overview">
+				<a name="section-overview"><h2>Overview</h2></a>
+				<p>Working with Bluetooth Low Energy on Android can be a real pain. Major quality differences between manufacturers, mysterious undocumented error codes, bugs introduced between OS releases... These are not the things dreams are made of. Buruberi is a small library that wraps the Android Bluetooth Low Energy APIs, and tries to insulate you from as many of these problems as it can.</p>
+			</section>
+			
+			<section id="examples">
+				<a name="section-examples"><h2>Using Burūberī</h2></a>
+				
+				<h3>Creating a Stack</h3>
+				<p>All interaction with Bluetooth through burūberī happens through an instance of the <code>BluetoothStack</code> class. <code>BluetoothStack</code>s are created through the <code>Buruberi</code> builder class.</p>
+				
+				<pre>
+final BluetoothStack bluetoothStack = new Buruberi()
+        .setApplicationContext(context)
+        .build();</pre>
+				
+				<p>The <code>Buruberi</code> class will choose an appropriate implementation of <code>BluetoothStack</code> for the current runtime environment. The returned <code>BluetoothStack</code> should be stored as a singleton value in your application, and shared between all Bluetooth code. Creating multiple <code>BluetoothStack</code> objects may result in unexpected behavior.</p>
+				
+				<h3>Scanning for Peripherals</h3>
+				<p>Bluetooth Low Energy peripherals are discovered by passing a <code>PeripheralCriteria</code> object to a <code>BluetoothStack</code>. <code>PeripheralCriteria</code> allows you to scan for peripherals by MAC address, by advertising data, or a combination of both.</p>
+				
+				<pre>
+final PeripheralCriteria criteria = new PeripheralCriteria();
+criteria.setLimit(5);
+criteria.setDuration(15 * 1000L);
+
+final Observable&lt;List&lt;GattPeripheral&gt;&gt; discover = bluetoothStack.discoverPeripherals(criteria);
+discover.subscribe(peripherals -&gt; {
+   Log.i("Discover", "Found peripherals " + peripherals);
+},
+error -&gt; {
+   Log.e("Discover", "Could not scan for peripherals.", error);
+});</pre>
+				
+				<h3>Connecting and Bonding</h3>
+				<p>After you‘ve completed a scan for your intended Bluetooth Low Energy peripheral, you can connect to it, and manage bonds. <i>Note: on many phones running Lollipop, you cannot create a new bond once the phone has created a gatt connection to the peripheral.</i></p>
+				
+				<pre>
+final OperationTimeout timeout = peripheral.createOperationTimeout("Connect", 30, TimeUnit.SECONDS);
+final Observable&lt;GattPeripheral&gt; connect = peripheral.connect(timeout);
+connect.subscribe(p -&gt; {
+    Log.i("Connect", "Connected to peripheral " + p);
+}, error -&gt; {
+    Log.e("Connect", "Could not connect to peripheral.", error);
+});
+
+final Observable&lt;GattPeripheral&gt; bond = peripheral.createBond();
+bond.subscribe(p -&gt; {
+    Log.i("Bond", "Created bond with peripheral " + p);
+}, error -&gt; {
+    Log.e("Bond", "Could not create bond with peripheral.", error);
+});</pre>
+
+				<h3>Using Services</h3>
+				<p>Once you‘ve connected to a peripheral, you can perform service discovery on it.</p>
+				
+				<pre>
+final OperationTimeout timeout = peripheral.createOperationTimeout("Services", 30, TimeUnit.SECONDS);
+final Observable&lt;Map&lt;UUID, PeripheralService&gt;&gt; services = peripheral.discoverServices(timeout);
+services.subscribe(allServices -&gt; {
+    Log.i("Services", "Discovered services " + allServices);
+}, error -&gt; {
+    Log.e("Services", "Could not discover services", error);
+});</pre>
+	
+				<h3>Writing to Characteristics</h3>
+				<p>After you‘ve connected to a peripheral, and performed service discovery on it, you can write to characteristics.</p>
+				
+				<pre>
+final GattCharacteristic characteristic = service.getCharacteristic(MY_CHARACTERISTIC);
+final OperationTimeout timeout = peripheral.createOperationTimeout("Write", 30, TimeUnit.SECONDS);
+final byte[] payload = { 0x4, 0x2 };
+final Observable&lt;Void&gt; write = characteristic.write(GattPeripheral.WriteType.DEFAULT, payload, timeout);
+write.subscribe(ignored -&gt; {
+    Log.i("Write", "Wrote to characteristic " + characteristic.getUuid());
+}, error -&gt; {
+    Log.e("Write", "Could not write to characteristic " + characteristic.getUuid(), error);
+});</pre>
+
+				<h3>Processing Packets</h3>
+				<p>Incoming packets from characteristics are routed through a user-defined <code>PacketHandler</code> object. From the packet handler, your client code can parse and route the packets as appropriate for your peripheral.</p>
+				
+				<pre>
+final PacketHandler printingHandler = new PacketHandler() {
+    @Override
+    public boolean processIncomingPacket(@NonNull UUID characteristicIdentifier, 
+                                         @NonNull byte[] payload) {
+        Log.i("Packets", "Got payload " + Bytes.toString(payload));
+        return true;
+    }
+
+    @Override
+    public void transportDisconnected() {
+        Log.i("Packets", "Peripheral disconnected");
+    }
+};
+
+peripheral.setPacketHandler(printingHandler);
+
+final GattCharacteristic characteristic = service.getCharacteristic(MY_CHARACTERISTIC);
+final OperationTimeout timeout = peripheral.createOperationTimeout("Enable", 30, TimeUnit.SECONDS);
+final Observable&lt;UUID&gt; notify = characteristic.enableNotification(MY_DATA_DESCRIPTOR, timeout);
+notify.subscribe(descriptorId -&gt; {
+    Log.i("Write", "Enabled notification for descriptor " + descriptorId);
+}, error -&gt; {
+    Log.e("Write", "Could not enable notifications for descriptor", error);
+});</pre>
+				
+			</section>
+			
+			<section id="download">
+				<a name="section-download">
+				<h2>Get It</h2>
+				</a>
+				<h3>Gradle</h3>
+				<pre>dependencies {
+    compile 'is.hello:buruberi-core:0.9.0'
+    testCompile 'is.hello:buruberi-testing:0.9.0'
+}</pre>
+
+					<h3>Jar</h3>
+					<p>Does not include convenience resources.</p>
+					<a href="https://github.com/hello/android-buruberi/releases" class="button">Download</a>
+					<p><br></p>
+					<h3>Source Code</h3>
+					<p>The source for Burūberī is available on GitHub</p>
+					<a href="https://github.com/hello/android-buruberi" class="button">Get Source</a>
+			</section>
+			
+			<section id="contributing">
+				<a name="section-contributing"><h2>Contributing</h2></a>
+				
+				<p>If you'd like to contribute to <code>android-buruberi</code>, fork the project on GitHub, and submit a pull request with your changes. Please be sure to include unit tests for any changes you make, and follow the coding style of the project as closely as possible. The full contribution guidelines can be found <a href="https://github.com/hello/android-buruberi/blob/master/CONTRIBUTING.md" class="text-link">here</a>.</p>
+			</section>
+			
+			<section id="license">
+				<a name="section-license"><h2>License</h2></a>
+				<pre>
+Copyright 2015 Hello Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</pre>
+			</section>
+		</main>
+		<footer>
+			<nav>
+				<ol>
+					<p class="footer-hello">Hello © 2015</p>
+					<li class="footer-nav"><a href="https://twitter.com/hello">Twitter</a></li>
+					<li class="footer-nav"><a href="https://www.facebook.com/helloinc">Facebook</a></li>
+					<li class="footer-nav"><a href="http://blog.hello.is/">Blog</a></li>
+					<li class="footer-nav"><a href="https://hello.is/contact">Contact us</a></li>
+				</ol>
+			</nav>
+		</footer>
+	</body>
+</html>
