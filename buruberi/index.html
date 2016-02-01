@@ -63,8 +63,7 @@ criteria.setDuration(15 * 1000L);
 final Observable&lt;List&lt;GattPeripheral&gt;&gt; discover = bluetoothStack.discoverPeripherals(criteria);
 discover.subscribe(peripherals -&gt; {
    Log.i("Discover", "Found peripherals " + peripherals);
-},
-error -&gt; {
+}, error -&gt; {
    Log.e("Discover", "Could not scan for peripherals.", error);
 });</pre>
 				
@@ -73,7 +72,7 @@ error -&gt; {
 				
 				<pre>
 final OperationTimeout timeout = peripheral.createOperationTimeout("Connect", 30, TimeUnit.SECONDS);
-final Observable&lt;GattPeripheral&gt; connect = peripheral.connect(timeout);
+final Observable&lt;GattPeripheral&gt; connect = peripheral.connect(GattPeripheral.CONNECT_FLAG_DEFAULTS, timeout);
 connect.subscribe(p -&gt; {
     Log.i("Connect", "Connected to peripheral " + p);
 }, error -&gt; {
@@ -92,15 +91,30 @@ bond.subscribe(p -&gt; {
 				
 				<pre>
 final OperationTimeout timeout = peripheral.createOperationTimeout("Services", 30, TimeUnit.SECONDS);
-final Observable&lt;Map&lt;UUID, PeripheralService&gt;&gt; services = peripheral.discoverServices(timeout);
+final Observable&lt;Map&lt;UUID, ? extends GattService&gt;&gt; services = peripheral.discoverServices(timeout);
 services.subscribe(allServices -&gt; {
     Log.i("Services", "Discovered services " + allServices);
 }, error -&gt; {
     Log.e("Services", "Could not discover services", error);
 });</pre>
 	
+        <h3>Reading Characteristics</h3>
+        <p>After you‘ve connected to a peripheral, and performed service discovery on it, you can read the values of characteristics.</p>
+        
+        <pre>
+final GattCharacteristic characteristic = service.getCharacteristic(MY_CHARACTERISTIC);
+final OperationTimeout timeout = peripheral.createOperationTimeout("Read", 30, TimeUnit.SECONDS);
+final Observable&lt;byte[]&gt; read = characteristic.read(timeout);
+read.subscribe(payload -&gt; {
+    Log.i("Write", "Read from characteristic " + characteristic.getUuid() +
+                        ": " + Bytes.toString(payload));
+}, error -&gt; {
+    Log.e("Write", "Could not read from characteristic " + characteristic.getUuid(), error);
+});
+</pre>
+
 				<h3>Writing to Characteristics</h3>
-				<p>After you‘ve connected to a peripheral, and performed service discovery on it, you can write to characteristics.</p>
+				<p>Writing to characteristics follows a similar pattern to reading from them.</p>
 				
 				<pre>
 final GattCharacteristic characteristic = service.getCharacteristic(MY_CHARACTERISTIC);
@@ -114,26 +128,32 @@ write.subscribe(ignored -&gt; {
 });</pre>
 
 				<h3>Processing Packets</h3>
-				<p>Incoming packets from characteristics are routed through a user-defined <code>PacketHandler</code> object. From the packet handler, your client code can parse and route the packets as appropriate for your peripheral.</p>
+				<p>Incoming packets from characteristic notifications are routed through a user-defined <code>PacketListener</code> object provided to a <code>GattCharacteristic</code>. From the packet listener, your client code can parse and route the contents of the packets as appropriate for your peripheral.</p>
 				
 				<pre>
 final PacketHandler printingHandler = new PacketHandler() {
+final GattCharacteristic characteristic = service.getCharacteristic(MY_CHARACTERISTIC);
+
+final GattCharacteristic.PacketListener printingListener = new GattCharacteristic.PacketListener() {
     @Override
     public boolean processIncomingPacket(@NonNull UUID characteristicIdentifier, 
                                          @NonNull byte[] payload) {
+    public void onCharacteristicNotify(@NonNull UUID characteristic, @NonNull byte[] payload) {
         Log.i("Packets", "Got payload " + Bytes.toString(payload));
         return true;
     }
 
+    
     @Override
     public void transportDisconnected() {
+    public void onPeripheralDisconnected() {
         Log.i("Packets", "Peripheral disconnected");
     }
 };
+characteristic.setPacketListener(printingListener);
 
 peripheral.setPacketHandler(printingHandler);
 
-final GattCharacteristic characteristic = service.getCharacteristic(MY_CHARACTERISTIC);
 final OperationTimeout timeout = peripheral.createOperationTimeout("Enable", 30, TimeUnit.SECONDS);
 final Observable&lt;UUID&gt; notify = characteristic.enableNotification(MY_DATA_DESCRIPTOR, timeout);
 notify.subscribe(descriptorId -&gt; {
